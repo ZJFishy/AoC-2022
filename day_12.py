@@ -39,22 +39,50 @@ def iterate_search(height_grid:list[list[str]], last_visit_grid:list[list[bool]]
                                 visited_grid[row+row_offset][col+col_offset] = True
     return current_visit_grid
 
-grid_in = read_grid("./day_12_input.txt")
-grid_height = len(grid_in)
-grid_width = len(grid_in[0])
-last_visit_grid = [[False for i in range(grid_width)] for j in range(grid_height)]
-visited_grid = [[False for i in range(grid_width)] for j in range(grid_height)]
-start_location = find_start(grid_in)
-last_visit_grid[start_location[0]][start_location[1]] = True
-visited_grid[start_location[0]][start_location[1]] = True
-step_number = 0
+if int(input("Enter the part number: ")) == 1:
+    grid_in = read_grid("./day_12_input.txt")
+    grid_height = len(grid_in)
+    grid_width = len(grid_in[0])
+    last_visit_grid = [[False for i in range(grid_width)] for j in range(grid_height)]
+    visited_grid = [[False for i in range(grid_width)] for j in range(grid_height)]
+    start_location = find_start(grid_in)
+    last_visit_grid[start_location[0]][start_location[1]] = True
+    visited_grid[start_location[0]][start_location[1]] = True
+    step_number = 0
 
-while last_visit_grid != True:
-    step_number += 1
-    print(f"Iteration {step_number}:")
-    last_visit_grid = iterate_search(grid_in, last_visit_grid, visited_grid, grid_height, grid_width)
-    if not last_visit_grid:
-        visited_grid += last_visit_grid
-    sleep(0.1)
+    while last_visit_grid != True:
+        step_number += 1
+        print(f"Iteration {step_number}:")
+        last_visit_grid = iterate_search(grid_in, last_visit_grid, visited_grid, grid_height, grid_width)
+        if not last_visit_grid:
+            visited_grid += last_visit_grid
+        sleep(0.1)
 
-print(step_number)
+    print(step_number)
+
+else:
+    grid_in = read_grid("./day_12_input.txt")
+    grid_height = len(grid_in)
+    grid_width = len(grid_in[0])
+    last_visit_grid = [[((grid_in[j][i] == "S")|(grid_in[j][i] == "a")) for i in range(grid_width)] for j in range(grid_height)]
+    visited_grid = [[((grid_in[j][i] == "S")|(grid_in[j][i] == "a")) for i in range(grid_width)] for j in range(grid_height)]
+    step_number = 0
+
+    for row in visited_grid:
+        for entry in row:
+            print("X" if entry else ".", end="")
+        print()
+
+    while last_visit_grid != True:
+        step_number += 1
+        print(f"Iteration {step_number}:")
+        last_visit_grid = iterate_search(grid_in, last_visit_grid, visited_grid, grid_height, grid_width)
+        if last_visit_grid != True:
+            for i in range(grid_height):
+                for j in range(grid_width):
+                    visited_grid[i][j] = last_visit_grid[i][j] | visited_grid[i][j]
+                    # print("X" if visited_grid[i][j] else ".", end="")
+                # print()
+        # sleep(0.1)
+
+    print(step_number)
