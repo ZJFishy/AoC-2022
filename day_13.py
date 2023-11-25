@@ -19,7 +19,7 @@ def parse_list(string_in):
         
         except:
             if entry == ",":
-                if current_token != 0:
+                if token_in_use:
                     temp_list.append(int(current_token))
                     current_token = 0
                     token_in_use = False
@@ -38,9 +38,11 @@ def parse_list(string_in):
 
     return temp_list
 
-def compare_list(left_in, right_in):
+def compare_lists(left_in, right_in):
     pointer = 0
-    while (pointer < len(left_in)) & (pointer < len(right_in)):
+    left_length = len(left_in)
+    right_length = len(right_in)
+    while ((pointer < left_length) & (pointer < right_length)):
         if type(left_in[pointer]) == type(right_in[pointer]) == int:
             if left_in[pointer] == right_in[pointer]:
                 pointer +=1
@@ -49,43 +51,88 @@ def compare_list(left_in, right_in):
             else:
                 return "wrong order"
         elif type(left_in[pointer]) == int:
-            result = compare_list([left_in[pointer]], right_in[pointer])
+            result = compare_lists([left_in[pointer]], right_in[pointer])
             if result == "equal":
                 pointer += 1
             else:
                 return result
         elif type(right_in[pointer]) == int:
-            result = compare_list(left_in[pointer], [right_in[pointer]])
+            result = compare_lists(left_in[pointer], [right_in[pointer]])
             if result == "equal":
                 pointer += 1
             else:
                 return result
         else:
-            result = compare_list(left_in[pointer], right_in[pointer])
+            result = compare_lists(left_in[pointer], right_in[pointer])
             if result == "equal":
                 pointer += 1
             else:
                 return result
-    if pointer == len(left_in) == len(right_in):
+    if pointer == left_length == right_length:
         return "equal"
-    elif len(right_in) > len(left_in):
+    elif right_length > left_length:
         return "right order"
     else:
         return "wrong order"
 
-packets = []
-index_sum = 0
+def sort_lists(packets_in):
+    if len(packets_in) == 1:
+        return packets_in
+    
+    pivot = len(packets_in) // 2
+    left = sort_lists(packets_in[:pivot])
+    right = sort_lists(packets_in[pivot:])
 
-for line in open("./day_13_input.txt"):
-    if len(line.split()) > 0:
-        packets.append(line.split()[0][1:-1])
+    sorted_lists = []
+    left_pointer = 0
+    right_pointer = 0
+    
+    while ((left_pointer < len(left)) & (right_pointer < len(right))):
+        result = compare_lists(left[left_pointer], right[right_pointer])
 
-for i in range(0, len(packets), 2):
-    left = parse_list(packets[i])
-    right = parse_list(packets[i+1])
-    result = compare_list(left, right)
-    print(left, right, result, "\n", sep="\n")
-    if result in ["equal", "right order"]:
-        index_sum += (i / 2) + 1
+        if result == "right order":
+            sorted_lists.append(left[left_pointer])
+            left_pointer += 1
+        else:
+            sorted_lists.append(right[right_pointer])
+            right_pointer += 1
+    
+    if left_pointer == len(left):
+        for entry in right[right_pointer:]:
+            sorted_lists.append(entry)
+    
+    else:
+        for entry in left[left_pointer:]:
+            sorted_lists.append(entry)
+    
+    return sorted_lists
 
-print(int(index_sum))
+def part_1():
+    packets = []
+
+    for line in open("./day_13_test_input.txt"):
+        if len(line.split()) > 0:
+            packets.append(line.split()[0][1:-1])
+    index_sum = 0
+
+    for i in range(0, len(packets), 2):
+        left = parse_list(packets[i])
+        right = parse_list(packets[i+1])
+        result = compare_lists(left, right)
+        print(left, right, result, "\n", sep="\n")
+        if result in ["equal", "right order"]:
+            index_sum += (i / 2) + 1
+
+    print(int(index_sum))
+
+def part_2():
+    packets = []
+
+    for line in open("./day_13_input_2.txt"):
+        if len(line.split()) > 0:
+            packets.append(parse_list(line.split()[0][1:-1]))
+
+    sorted_packets = sort_lists(packets)
+    return (sorted_packets.index([[2]]) + 1) * (sorted_packets.index([[6]]) + 1)
+
+print(part_2())
